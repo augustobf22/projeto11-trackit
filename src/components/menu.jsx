@@ -1,10 +1,18 @@
 import styled from "styled-components"
+import { Link } from "react-router-dom"
 
 export default function Menu() {
     return(
         <ContainerMenu>
-            <p>Hábitos</p>
-            <p>Histórico</p>
+            <Link to="/habitos">
+                Hábitos
+            </Link>
+            <Link to="/hoje">
+                Hoje
+            </Link>
+            <Link to="/historico">
+                Histórico
+            </Link>
         </ContainerMenu>
     );
 };
@@ -24,13 +32,14 @@ const ContainerMenu = styled.div`
 
     padding: 30px;
 
-    p{
+    a{
         font-family: 'Lexend Deca';
         font-style: normal;
         font-weight: 400;
         font-size: 17.976px;
         line-height: 22px;
         text-align: center;
+        text-decoration: none;
 
         color: #52B6FF;
 
