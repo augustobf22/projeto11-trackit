@@ -2,24 +2,51 @@ import styled from "styled-components"
 import Header from "../../components/header"
 import Menu from "../../components/menu"
 import mockToday from "./mockToday"
+import dayjs from "dayjs"
+import "dayjs/locale/pt-br"
+import {useContext, useState} from "react"
+import { AppContext } from "../../appContext";
+
+const now = dayjs().locale("pt-br").format("dddd, DD/MM");
 
 const habitsColors = {complete: "#8FC549", incomplete: "#BABABA"};
 
 export default function TodayPage() {
+    const appObj = useContext(AppContext);
+    const progObj = appObj.progObj;
+
+    function markHabit(h){
+        //change status
+        h.done=(!h.done);
+
+        //if status is now true, increase currentsequence
+        h.done ? h.currentSequence++ : h.currentSequence--;
+        (h.currentSequence>h.highestSequence) ? h.highestSequence=h.currentSequence : "";
+
+        let count = 0;
+        mockToday.forEach(hab=>hab.done?count++:"");
+
+        let den = mockToday.length;
+        let num = count;
+
+        let n = Math.floor(100 * num / den);
+        progObj.setProgress(n);
+    }
+
     return (
         <Container>
             <Header />
             <TodayContent>
-                <TodayInfo>
-                    <p>Segunda-feira, 17/05</p>
-                    <h1>Nenhum hábito concluído ainda</h1>
+                <TodayInfo prog={progObj.progress}>
+                    <p>{now}</p>
+                    <h1>{progObj.progress !== 0 ? `${progObj.progress}% dos hábitos concluídos` : "Nenhum hábito concluído ainda"}</h1>
                 </TodayInfo>
                 {mockToday.map(h => (
-                    <DisplayToday key={h.id}>
-                        <ion-icon name="checkbox"></ion-icon>
+                    <DisplayToday key={h.id} h={h}>
+                        <ion-icon name="checkbox" onClick={() => markHabit(h)}></ion-icon>
                         <p>{h.name}</p>
                         <h1>Sequência atual: {h.currentSequence} dias</h1>
-                        <h1>Seu recorde: {h.highestSequence} dias</h1>
+                        <Record h={h}>Seu recorde: {h.highestSequence} dias</Record>
                     </DisplayToday>
                     )    
                 )}
@@ -63,7 +90,7 @@ const TodayInfo = styled.div`
         font-size: 17.976px;
         line-height: 22px;
 
-        color: ${habitsColors.incomplete};
+        color: ${props => props.prog !== 0 ? habitsColors.complete : habitsColors.incomplete};
     }
 `;
 
@@ -100,7 +127,7 @@ const DisplayToday = styled.div`
         font-size: 12.976px;
         line-height: 16px;
 
-        color: #666666;
+        color: ${props => props.h.done ? habitsColors.complete : "#666666"};
     }
 
     ion-icon{
@@ -110,10 +137,20 @@ const DisplayToday = styled.div`
 
         font-size: 80px;
 
-        color: ${habitsColors.complete};
+        color: ${props => props.h.done ? habitsColors.complete : habitsColors.incomplete};
 
         &:hover{
             cursor: pointer;
         }
     }
+`;
+
+const Record = styled.h2`
+        font-family: 'Lexend Deca';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 12.976px;
+        line-height: 16px;
+
+        color: ${props => (props.h.done && props.h.currentSequence===props.h.highestSequence && props.h.currentSequence!==0) ? habitsColors.complete : "#666666"};
 `;

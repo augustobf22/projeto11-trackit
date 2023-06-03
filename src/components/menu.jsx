@@ -1,14 +1,34 @@
 import styled from "styled-components"
 import { Link } from "react-router-dom"
+import {useContext} from "react"
+import { AppContext } from "../appContext";
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 export default function Menu() {
+    const appObj = useContext(AppContext);
+    const progObj = appObj.progObj;
+
     return(
         <ContainerMenu>
             <Link to="/habitos">
                 Hábitos
             </Link>
             <Link to="/hoje">
-                Hoje
+                <ContainerProgress>
+                    <CircularProgressbar 
+                        value={progObj.progress} 
+                        text={"Hoje"} 
+                        background
+                        backgroundPadding={6}
+                        styles={buildStyles({
+                            backgroundColor: "#52B6FF",
+                            textColor: "#fff",
+                            pathColor: "#fff",
+                            trailColor: "transparent"
+                        })}
+                    />                    
+                </ContainerProgress>
             </Link>
             <Link to="/historico">
                 Histórico
@@ -47,4 +67,12 @@ const ContainerMenu = styled.div`
             cursor: pointer;
         }
     }
+`;
+
+const ContainerProgress = styled.div`
+    width: 90px;
+    position: fixed;
+    bottom: 10px;
+    right: 50%;
+    transform: translate(50%, 0);
 `;

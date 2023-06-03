@@ -2,10 +2,37 @@ import styled from "styled-components"
 import Header from "../../components/header"
 import Menu from "../../components/menu"
 import mockHabits from "./mockHabits";
+import { useState } from "react";
 
-const buttonColors = {available: {bg: "#FFFFFF", border: "#D5D5D5", fontColor: "#DBDBDB"}, selected: {bg: "#CFCFCF", border: "#CFCFCF", fontColor: "#ffffff"}};
+const buttonColors = { available: { bg: "#FFFFFF", border: "#D5D5D5", fontColor: "#DBDBDB" }, selected: { bg: "#CFCFCF", border: "#CFCFCF", fontColor: "#ffffff" } };
 
 export default function HabitsPage() {
+    const daysObj =  {0: "D", 1: "S", 2: "T", 3: "Q", 4: "Q", 5: "S", 6: "S"};
+    const [add, setAdd] = useState(false);
+    const [selected, setSelected] = useState([]);
+    const [habitName, setHabitName] = useState();
+
+    function addDay(index) {
+        if (selected.includes(index)) {
+            let nSel = [...selected];
+            nSel.splice(nSel.indexOf(index), 1);
+            setSelected(nSel);
+        } else {
+            let nSel = [...selected, index];
+            setSelected(nSel);
+        }
+    }
+
+    function save(){
+        let obj = {id: mockHabits.length+1, name: habitName, days: selected};
+        mockHabits.push(obj);
+        setAdd(false);
+    }
+
+    function deleteHabit(h) {
+        alert(h.id);
+    }
+
     return (
         <Container>
             <Header />
@@ -13,32 +40,29 @@ export default function HabitsPage() {
                 <AddHabit>
                     <MyHabits>
                         <p>Meus hábitos</p>
-                        <button>+</button>
+                        <button onClick={() => setAdd(!add)}>+</button>
                     </MyHabits>
-                    <ContainerAdd>
+                    <ContainerAdd add={add}>
                         <ContainerInput>
                             <input
                                 required
                                 placeholder="nome do hábito"
                                 id="habitName"
                                 type="text"
-                            /*value={props.buyer} 
-                            onChange={e => updateBuyer(e.target.value)} 
-                            data-test="client-name"*/
+                                value={habitName} 
+                                onChange={e => setHabitName(e.target.value)} 
+                                /*data-test="client-name"*/
                             />
-                            <DaysButtons>
-                                <button>D</button>
-                                <button>S</button>
-                                <button>T</button>
-                                <button>Q</button>
-                                <button>Q</button>
-                                <button>S</button>
-                                <button>S</button>
-                            </DaysButtons>
+                            <div>
+                                {Object.values(daysObj).map((d, index) => (
+                                    <SelButton index={index} selected={selected} key={index} onClick={() => addDay(index)}>{d}</SelButton>
+                                )
+                                )}
+                            </div>
                         </ContainerInput>
                         <SaveButtons>
                             <CancelButton>Cancelar</CancelButton>
-                            <SaveButton>Salvar</SaveButton>
+                            <SaveButton onClick={save}>Salvar</SaveButton>
                         </SaveButtons>
                     </ContainerAdd>
                 </AddHabit>
@@ -47,19 +71,16 @@ export default function HabitsPage() {
                 </NoHabits>
                 {mockHabits.map(h => (
                     <DisplayHabits key={h.id}>
-                        <ion-icon name="trash-outline"></ion-icon>
+                        <ion-icon name="trash-outline" onClick={()=>deleteHabit(h)}></ion-icon>
                         <p>{h.name}</p>
-                        <DaysButtons>
-                            <button>D</button>
-                            <button>S</button>
-                            <button>T</button>
-                            <button>Q</button>
-                            <button>Q</button>
-                            <button>S</button>
-                            <button>S</button>
-                        </DaysButtons>
+                        <ContainerButtons>
+                            {Object.values(daysObj).map((d, index) => (
+                                <DaysButton key={index} days={h.days} index={index}>{d}</DaysButton>
+                            )
+                            )}
+                        </ContainerButtons>
                     </DisplayHabits>
-                    )    
+                )
                 )}
 
             </HabitsContent>
@@ -134,12 +155,10 @@ const ContainerAdd = styled.div`
 
     padding: 15px;
 
-    display: flex;
+    display: ${props => props.add ? "flex" : "none"};
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
-    display: none;
 
     input {
         height: 45px;
@@ -167,14 +186,46 @@ const ContainerInput = styled.div`
     gap: 8px;
 `;
 
-const DaysButtons = styled.div`
-    button{
+const SelButton = styled.button`
+    width: 30px;
+    height: 30px;
+    margin-right: 4px;
+
+    background: ${props => props.selected.includes(props.index) ? buttonColors.selected.bg : buttonColors.available.bg};
+    border: 1px solid ${props => props.selected.includes(props.index) ? buttonColors.selected.border : buttonColors.available.border};
+
+    border-radius: 5px;
+
+    font-family: 'Lexend Deca';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 19.976px;
+    line-height: 25px;
+
+    color: ${props => props.selected.includes(props.index) ? buttonColors.selected.fontColor : buttonColors.available.fontColor};
+
+    &:hover{
+        cursor: pointer;
+    }
+`;
+
+const ContainerButtons = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+`;
+
+const DaysButton = styled.div`
         width: 30px;
         height: 30px;
-        margin-right: 4px;
 
-        background: ${buttonColors.selected.bg};
-        border: 1px solid ${buttonColors.selected.border};
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        background: ${props => props.days.includes(props.index) ? buttonColors.selected.bg : buttonColors.available.bg};
+        border: 1px solid ${props => props.days.includes(props.index) ? buttonColors.selected.border : buttonColors.available.border};
 
         border-radius: 5px;
 
@@ -184,12 +235,11 @@ const DaysButtons = styled.div`
         font-size: 19.976px;
         line-height: 25px;
 
-        color: ${buttonColors.selected.fontColor};
+        color: ${props => props.days.includes(props.index) ? buttonColors.selected.fontColor : buttonColors.available.fontColor};
 
         &:hover{
             cursor: pointer;
         }
-    }
 `;
 
 const SaveButtons = styled.div`
@@ -244,7 +294,8 @@ const SaveButton = styled.button`
 `;
 
 const NoHabits = styled.div`
-display: none;
+    display: ${mockHabits.length !== 0 ? "none" : "block"};
+
     p{
     font-family: 'Lexend Deca';
     font-style: normal;
@@ -293,4 +344,5 @@ const DisplayHabits = styled.div`
             cursor: pointer;
         }
     }
-`
+`;
+
