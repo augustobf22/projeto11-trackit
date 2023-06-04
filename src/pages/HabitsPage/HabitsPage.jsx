@@ -1,8 +1,9 @@
 import styled from "styled-components"
 import Header from "../../components/header"
 import Menu from "../../components/menu"
-import mockHabits from "./mockHabits";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../../appContext";
+import axios from "axios";
 
 const buttonColors = { available: { bg: "#FFFFFF", border: "#D5D5D5", fontColor: "#DBDBDB" }, selected: { bg: "#CFCFCF", border: "#CFCFCF", fontColor: "#ffffff" } };
 
@@ -11,6 +12,11 @@ export default function HabitsPage() {
     const [add, setAdd] = useState(false);
     const [selected, setSelected] = useState([]);
     const [habitName, setHabitName] = useState();
+    const [habits, setHabits] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
+    const appObj = useContext(AppContext);
+    const userObj = appObj.userObj;
 
     function addDay(index) {
         if (selected.includes(index)) {
@@ -23,15 +29,73 @@ export default function HabitsPage() {
         }
     }
 
-    function save(){
-        let obj = {id: mockHabits.length+1, name: habitName, days: selected};
-        mockHabits.push(obj);
-        setAdd(false);
+    function save(event){
+        event.preventDefault();
+
+        let obj = {name: habitName, days: selected};
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${userObj.user.token}`
+            }
+        }
+        const promise = axios.post(url, obj, config);
+    
+        promise.then(r => {
+            setHabits([...habits, r.data]);
+            setAdd(false);
+            setLoading(false);
+            setSelected([]);
+            setHabitName("");
+        });
+        promise.catch(r => {
+            alert(r.message);
+            setLoading(false);
+        });
+        
+        if(!loading) {
+            setLoading(true);
+        }
     }
 
     function deleteHabit(h) {
-        alert(h.id);
+        let c = confirm("Quer mesmo deletar?");
+
+        if (c){
+            let urlDel = url+"/"+h.id;
+            const config = {
+                headers: {
+                    "Authorization": `Bearer ${userObj.user.token}`
+                }
+            }
+            const request = axios.delete(urlDel, config);
+        
+            request.then(r => {
+                let nHabits = [...habits];
+                nHabits.splice(habits.indexOf(h), 1);
+                setHabits(nHabits);
+            });
+            request.catch(r => {
+                alert(r.message);
+            });
+        }
     }
+
+    useEffect(() => {
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${userObj.user.token}`
+            }
+        }
+		const request = axios.get(url,config);
+
+		request.then(r => {
+			setHabits(r.data);
+		});
+        request.catch(r => {
+            alert(r.message);
+            setLoading(false);
+        });
+	}, []);
 
     return (
         <Container>
@@ -51,25 +115,26 @@ export default function HabitsPage() {
                                 type="text"
                                 value={habitName} 
                                 onChange={e => setHabitName(e.target.value)} 
+                                disabled={loading}
                                 /*data-test="client-name"*/
                             />
                             <div>
                                 {Object.values(daysObj).map((d, index) => (
-                                    <SelButton index={index} selected={selected} key={index} onClick={() => addDay(index)}>{d}</SelButton>
+                                    <SelButton index={index} selected={selected} key={index} onClick={() => addDay(index)} disabled={loading}>{d}</SelButton>
                                 )
                                 )}
                             </div>
                         </ContainerInput>
                         <SaveButtons>
-                            <CancelButton>Cancelar</CancelButton>
-                            <SaveButton onClick={save}>Salvar</SaveButton>
+                            <CancelButton onClick={() => setAdd(false)}>Cancelar</CancelButton>
+                            <SaveButton onClick={save} loading={loading}>Salvar</SaveButton>
                         </SaveButtons>
                     </ContainerAdd>
                 </AddHabit>
-                <NoHabits>
+                <NoHabits habits={habits}>
                     <p>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</p>
                 </NoHabits>
-                {mockHabits.map(h => (
+                {habits.map(h => (
                     <DisplayHabits key={h.id}>
                         <ion-icon name="trash-outline" onClick={()=>deleteHabit(h)}></ion-icon>
                         <p>{h.name}</p>
@@ -205,7 +270,7 @@ const SelButton = styled.button`
     color: ${props => props.selected.includes(props.index) ? buttonColors.selected.fontColor : buttonColors.available.fontColor};
 
     &:hover{
-        cursor: pointer;
+        ${props => props.loading ? "" : "cursor: pointer"};
     }
 `;
 
@@ -236,10 +301,6 @@ const DaysButton = styled.div`
         line-height: 25px;
 
         color: ${props => props.days.includes(props.index) ? buttonColors.selected.fontColor : buttonColors.available.fontColor};
-
-        &:hover{
-            cursor: pointer;
-        }
 `;
 
 const SaveButtons = styled.div`
@@ -265,7 +326,7 @@ const CancelButton = styled.button`
     color: #52B6FF;    
 
     &:hover{
-        cursor: pointer;
+        ${props => props.loading ? "" : "cursor: pointer"};
     }
 `;
 
@@ -286,15 +347,19 @@ const SaveButton = styled.button`
 
     text-align: center;
 
-    color: #FFFFFF;    
+    color: #FFFFFF;  
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover{
-        cursor: pointer;
+        ${props => props.loading ? "" : "cursor: pointer"};
     }
 `;
 
 const NoHabits = styled.div`
-    display: ${mockHabits.length !== 0 ? "none" : "block"};
+    display: ${props => props.habits.length !== 0 ? "none" : "block"};
 
     p{
     font-family: 'Lexend Deca';

@@ -1,20 +1,55 @@
 import styled from "styled-components"
 import logo from "../../assets/img/logo.svg"
-import {Link} from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import axios from 'axios';
+import { ThreeDots } from "react-loader-spinner";
 
 export default function SignupPage() {
+    const [signUp, setSignUp] = useState({
+        email: "",
+        name: "",
+        image: "",
+        password: ""
+    });
+    const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/sign-up";
+    const navigate = useNavigate(); 
+    const [loading, setLoading] = useState(false);
+
+    function submitForm(event){
+        event.preventDefault();
+        const promise = axios.post(url, signUp);
+    
+        promise.then(r => {
+            navigate("/")});
+        promise.catch(r => {
+            setLoading(false);
+            alert(r.data.message);
+        });
+        
+        if(!loading) {
+            setLoading(true);
+        }
+    }
+
     return (
         <Container>
             <img src={logo} alt="logo" />
-            <FormContainer>
+            <FormContainer onSubmit={submitForm} loading={loading}>
                 <input 
                     required 
                     placeholder="email"   
                     id="email" 
                     type="email"
-                    /*value={props.buyer} 
-                    onChange={e => updateBuyer(e.target.value)} 
-                    data-test="client-name"*/
+                    value={signUp.email} 
+                    onChange={e => setSignUp({
+                        email: e.target.value,
+                        name: signUp.name,
+                        image: signUp.image,
+                        password: signUp.password
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-name"*/
                 />
 
                 <input 
@@ -22,9 +57,15 @@ export default function SignupPage() {
                     placeholder="senha" 
                     id="password" 
                     type="password"
-                    /*value={props.cpf} 
-                    onChange={e => updateCpf(e.target.value)} 
-                    data-test="client-cpf"*/
+                    value={signUp.password} 
+                    onChange={e => setSignUp({
+                        email: signUp.email,
+                        name: signUp.name,
+                        image: signUp.image,
+                        password: e.target.value
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-cpf"*/
                 />
 
                 <input 
@@ -32,9 +73,15 @@ export default function SignupPage() {
                     placeholder="nome"   
                     id="username" 
                     type="text"
-                    /*value={props.buyer} 
-                    onChange={e => updateBuyer(e.target.value)} 
-                    data-test="client-name"*/
+                    value={signUp.name} 
+                    onChange={e => setSignUp({
+                        email: signUp.email,
+                        name: e.target.value,
+                        image: signUp.image,
+                        password: signUp.password
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-name"*/
                 />
 
                 <input 
@@ -42,16 +89,24 @@ export default function SignupPage() {
                     placeholder="imagem"   
                     id="userpicture" 
                     type="url"
-                    /*value={props.buyer} 
-                    onChange={e => updateBuyer(e.target.value)} 
-                    data-test="client-name"*/
+                    value={signUp.image} 
+                    onChange={e => setSignUp({
+                        email: signUp.email,
+                        name: signUp.name,
+                        image: e.target.value,
+                        password: signUp.password
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-name"*/
                 />
 
                 <button 
+                    disabled={loading}
                     type="submit"
                     //data-test="book-seat-btn"
                 >
-                    Cadastrar
+                    <ThreeDots color='#ffffff' visible={loading}/>
+                    {loading ? "": "Cadastrar"}
                 </button>              
             </FormContainer>
             <Link to="/">
@@ -96,7 +151,6 @@ const FormContainer = styled.form`
     margin-bottom: 25px;
 
     button {
-        //align-self: center;
         width: 303px;
         height: 45px;
 
@@ -113,8 +167,12 @@ const FormContainer = styled.form`
 
         color: #FFFFFF;
 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
         &:hover{
-            cursor: pointer;
+            ${props => props.loading ? "" : "cursor: pointer"};
         }
     }
 

@@ -1,20 +1,59 @@
 import styled from "styled-components"
 import logo from "../../assets/img/logo.svg"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
+import {useContext,useState} from "react"
+import { AppContext } from "../../appContext";
+import axios from 'axios';
+import { ThreeDots } from "react-loader-spinner";
 
 export default function LoginPage() {
+    const appObj = useContext(AppContext);
+    const userObj = appObj.userObj;
+    const [login, setLogin] = useState({
+        email: "",
+        password: ""
+    });
+    const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login";
+    const navigate = useNavigate(); 
+    const [loading, setLoading] = useState(false);
+
+    function submitForm(event){
+        event.preventDefault();
+        const promise = axios.post(url, login);
+    
+        promise.then(r => {
+            userObj.setUser(r.data);
+            navigate("/hoje")});
+        promise.catch(r => {
+            alert(r.message);
+            setLogin({
+                email: "",
+                password: ""
+            });
+            setLoading(false);
+        });
+        
+        if(!loading) {
+            setLoading(true);
+        }
+    };
+
     return (
         <Container>
             <img src={logo} alt="logo" />
-            <FormContainer>
+            <FormContainer onSubmit={submitForm} loading={loading}>
                 <input 
                     required 
                     placeholder="email"   
                     id="email" 
                     type="email"
-                    /*value={props.buyer} 
-                    onChange={e => updateBuyer(e.target.value)} 
-                    data-test="client-name"*/
+                    value={login.email} 
+                    onChange={e => setLogin({
+                        email: e.target.value,
+                        password: login.password
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-name"*/
                 />
 
                 <input 
@@ -22,16 +61,22 @@ export default function LoginPage() {
                     placeholder="senha" 
                     id="senha" 
                     type="password"
-                    /*value={props.cpf} 
-                    onChange={e => updateCpf(e.target.value)} 
-                    data-test="client-cpf"*/
+                    value={login.password} 
+                    onChange={e => setLogin({
+                        email: login.email,
+                        password: e.target.value
+                    })} 
+                    disabled={loading}
+                    /*data-test="client-cpf"*/
                 />
 
                 <button 
                     type="submit"
+                    disabled={loading}
                     //data-test="book-seat-btn"
                 >
-                    Entrar
+                    <ThreeDots color='#ffffff' visible={loading}/>
+                    {loading ? "": "Entrar"}
                 </button>              
             </FormContainer>
             <Link to="/cadastro">
@@ -93,8 +138,12 @@ const FormContainer = styled.form`
 
         color: #FFFFFF;
 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
         &:hover{
-            cursor: pointer;
+            ${props => props.loading ? "" : "cursor: pointer"};
         }
     }
 

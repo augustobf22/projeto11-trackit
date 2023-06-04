@@ -1,11 +1,11 @@
 import styled from "styled-components"
 import Header from "../../components/header"
 import Menu from "../../components/menu"
-import mockToday from "./mockToday"
 import dayjs from "dayjs"
 import "dayjs/locale/pt-br"
-import {useContext, useState} from "react"
-import { AppContext } from "../../appContext";
+import {useContext, useState, useEffect} from "react"
+import { AppContext } from "../../appContext"
+import axios from "axios"
 
 const now = dayjs().locale("pt-br").format("dddd, DD/MM");
 
@@ -14,24 +14,68 @@ const habitsColors = {complete: "#8FC549", incomplete: "#BABABA"};
 export default function TodayPage() {
     const appObj = useContext(AppContext);
     const progObj = appObj.progObj;
+    const userObj = appObj.userObj;
+    const [habitsDay, setHabitsDay] = useState([]);
+    const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today";
 
     function markHabit(h){
-        //change status
-        h.done=(!h.done);
+        const urlCheck = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${h.id}/check`;
+        const urlUncheck = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${h.id}/uncheck`;
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${userObj.user.token}`
+            }
+        }
+        console.log(1, habitsDay);
+        if (h.done){
+            const request = axios.post(urlUncheck, [], config);
 
-        //if status is now true, increase currentsequence
-        h.done ? h.currentSequence++ : h.currentSequence--;
-        (h.currentSequence>h.highestSequence) ? h.highestSequence=h.currentSequence : "";
+            request.then(r => {
+                updateHabits();
+                console.log(2, habitsDay);
+            });
+            request.catch(r => {
+                alert(r.message);
+            });
+        } else {
+            const request = axios.post(urlCheck, [], config);
+
+            request.then(r => {
+                updateHabits();
+                console.log(3, habitsDay);
+            });
+            request.catch(r => {
+                alert(r.message);
+            });
+        }
 
         let count = 0;
-        mockToday.forEach(hab=>hab.done?count++:"");
+        habitsDay.forEach(hab=>hab.done?count++:"");
 
-        let den = mockToday.length;
+        let den = habitsDay.length;
         let num = count;
 
         let n = Math.floor(100 * num / den);
         progObj.setProgress(n);
     }
+
+    function updateHabits(){
+            const config = {
+                headers: {
+                    "Authorization": `Bearer ${userObj.user.token}`
+                }
+            }
+            const request = axios.get(url,config);
+
+            request.then(r => {
+                setHabitsDay(r.data);
+            });
+            request.catch(r => {
+                alert(r.message);
+            });
+    }
+
+    updateHabits();
 
     return (
         <Container>
@@ -41,7 +85,7 @@ export default function TodayPage() {
                     <p>{now}</p>
                     <h1>{progObj.progress !== 0 ? `${progObj.progress}% dos hábitos concluídos` : "Nenhum hábito concluído ainda"}</h1>
                 </TodayInfo>
-                {mockToday.map(h => (
+                {habitsDay.map(h => (
                     <DisplayToday key={h.id} h={h}>
                         <ion-icon name="checkbox" onClick={() => markHabit(h)}></ion-icon>
                         <p>{h.name}</p>

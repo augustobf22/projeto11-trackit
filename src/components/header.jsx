@@ -1,21 +1,16 @@
 import styled from "styled-components"
 import logoMini from "../assets/img/logo-mini.svg"
-import userImg from "../assets/img/vangogh.jpg"
 import {useContext} from "react"
 import { AppContext } from "../appContext";
-
-function img(userObj){
-    userObj.setUser({img: userImg});
-}
 
 export default function Header() {
     const appObj = useContext(AppContext);
     const userObj = appObj.userObj;
 
     return(
-        <ContainerHeader onClick={() => img(userObj)}>
+        <ContainerHeader>
             <Logo src={logoMini} alt="logo-mini" />
-            <UserImg src={userObj.user.img} alt="user-img" />
+            <UserImg src={userObj.user.image} alt="user-img" />
         </ContainerHeader>
     );
 };
