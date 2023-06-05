@@ -6,6 +6,7 @@ import "dayjs/locale/pt-br"
 import {useContext, useState, useEffect} from "react"
 import { AppContext } from "../../appContext"
 import axios from "axios"
+import { RotatingLines } from "react-loader-spinner";
 
 const now = dayjs().locale("pt-br").format("dddd, DD/MM");
 
@@ -17,6 +18,7 @@ export default function TodayPage() {
     const userObj = appObj.userObj;
     const [habitsDay, setHabitsDay] = useState([]);
     const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today";
+    const [loading, setLoading] = useState(false);
 
     function markHabit(h){
         const urlCheck = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/${h.id}/check`;
@@ -26,29 +28,41 @@ export default function TodayPage() {
                 "Authorization": `Bearer ${userObj.user.token}`
             }
         }
-        console.log(1, habitsDay);
+
         if (h.done){
             const request = axios.post(urlUncheck, [], config);
 
             request.then(r => {
+                setLoading(false);
                 updateHabits();
-                console.log(2, habitsDay);
             });
             request.catch(r => {
+                setLoading(false);
                 alert(r.message);
             });
+
+            if(!loading) {
+                setLoading(true);
+            }
         } else {
             const request = axios.post(urlCheck, [], config);
 
             request.then(r => {
+                setLoading(false);
                 updateHabits();
-                console.log(3, habitsDay);
             });
             request.catch(r => {
+                setLoading(false);
                 alert(r.message);
             });
-        }
 
+            if(!loading) {
+                setLoading(true);
+            }
+        }
+    }
+
+    function updateProgress(){
         let count = 0;
         habitsDay.forEach(hab=>hab.done?count++:"");
 
@@ -73,6 +87,8 @@ export default function TodayPage() {
             request.catch(r => {
                 alert(r.message);
             });
+
+            updateProgress();
     }
 
     updateHabits();
@@ -82,18 +98,27 @@ export default function TodayPage() {
             <Header />
             <TodayContent>
                 <TodayInfo prog={progObj.progress}>
-                    <p>{now}</p>
-                    <h1>{progObj.progress !== 0 ? `${progObj.progress}% dos hábitos concluídos` : "Nenhum hábito concluído ainda"}</h1>
+                    <p data-test="today">{now}</p>
+                    <h1 data-test="today-counter">{progObj.progress !== 0 ? `${progObj.progress}% dos hábitos concluídos` : "Nenhum hábito concluído ainda"}</h1>
                 </TodayInfo>
                 {habitsDay.map(h => (
-                    <DisplayToday key={h.id} h={h}>
-                        <ion-icon name="checkbox" onClick={() => markHabit(h)}></ion-icon>
-                        <p>{h.name}</p>
-                        <h1>Sequência atual: {h.currentSequence} dias</h1>
-                        <Record h={h}>Seu recorde: {h.highestSequence} dias</Record>
+                    <DisplayToday key={h.id} h={h} loading={loading} data-test="today-habit-container">
+                        <ion-icon name="checkbox" onClick={() => markHabit(h)} data-test="today-habit-check-btn"></ion-icon>
+                        <p data-test="today-habit-name">{h.name}</p>
+                        <h1 data-test="today-habit-sequence">Sequência atual: {h.currentSequence} dias</h1>
+                        <Record h={h} data-test="today-habit-record">Seu recorde: {h.highestSequence} dias</Record>
                     </DisplayToday>
                     )    
                 )}
+                <Wrapper>
+                    <RotatingLines
+                        strokeColor="#52B6FF"
+                        strokeWidth="5"
+                        animationDuration="0.75"
+                        width="96"
+                        visible={loading}
+                    />    
+                </Wrapper>
             </TodayContent>
             <Menu />
         </Container>
@@ -184,7 +209,7 @@ const DisplayToday = styled.div`
         color: ${props => props.h.done ? habitsColors.complete : habitsColors.incomplete};
 
         &:hover{
-            cursor: pointer;
+            ${props => props.loading ? "" : "cursor: pointer"};
         }
     }
 `;
@@ -198,3 +223,10 @@ const Record = styled.h2`
 
         color: ${props => (props.h.done && props.h.currentSequence===props.h.highestSequence && props.h.currentSequence!==0) ? habitsColors.complete : "#666666"};
 `;
+
+const Wrapper = styled.div`
+    position: fixed;
+    top: 50%;
+    right: 50%;
+    transform: translate(50%,0);
+`

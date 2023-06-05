@@ -49,7 +49,7 @@ export default function SignupPage() {
                         password: signUp.password
                     })} 
                     disabled={loading}
-                    /*data-test="client-name"*/
+                    data-test="email-input"
                 />
 
                 <input 
@@ -65,7 +65,7 @@ export default function SignupPage() {
                         password: e.target.value
                     })} 
                     disabled={loading}
-                    /*data-test="client-cpf"*/
+                    data-test="password-input"
                 />
 
                 <input 
@@ -81,7 +81,7 @@ export default function SignupPage() {
                         password: signUp.password
                     })} 
                     disabled={loading}
-                    /*data-test="client-name"*/
+                    data-test="user-name-input"
                 />
 
                 <input 
@@ -97,19 +97,19 @@ export default function SignupPage() {
                         password: signUp.password
                     })} 
                     disabled={loading}
-                    /*data-test="client-name"*/
+                    data-test="user-image-input"
                 />
 
                 <button 
                     disabled={loading}
                     type="submit"
-                    //data-test="book-seat-btn"
+                    data-test="signup-btn"
                 >
                     <ThreeDots color='#ffffff' visible={loading}/>
                     {loading ? "": "Cadastrar"}
                 </button>              
             </FormContainer>
-            <Link to="/">
+            <Link to="/" data-test="login-link">
                 Já tem uma conta? Faça login!
             </Link>
         </Container>

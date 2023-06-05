@@ -8,9 +8,9 @@ export default function Header() {
     const userObj = appObj.userObj;
 
     return(
-        <ContainerHeader>
+        <ContainerHeader data-test="header">
             <Logo src={logoMini} alt="logo-mini" />
-            <UserImg src={userObj.user.image} alt="user-img" />
+            <UserImg src={userObj.user.image} alt="user-img" data-test="avatar"/>
         </ContainerHeader>
     );
 };

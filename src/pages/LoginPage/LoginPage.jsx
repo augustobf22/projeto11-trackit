@@ -53,7 +53,7 @@ export default function LoginPage() {
                         password: login.password
                     })} 
                     disabled={loading}
-                    /*data-test="client-name"*/
+                    data-test="email-input"
                 />
 
                 <input 
@@ -67,19 +67,19 @@ export default function LoginPage() {
                         password: e.target.value
                     })} 
                     disabled={loading}
-                    /*data-test="client-cpf"*/
+                    data-test="password-input"
                 />
 
                 <button 
                     type="submit"
                     disabled={loading}
-                    //data-test="book-seat-btn"
+                    data-test="login-btn"
                 >
                     <ThreeDots color='#ffffff' visible={loading}/>
                     {loading ? "": "Entrar"}
                 </button>              
             </FormContainer>
-            <Link to="/cadastro">
+            <Link to="/cadastro" data-test="signup-link">
                 Não tem uma conta? Cadastre-se!
             </Link>
         </Container>

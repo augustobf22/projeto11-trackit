@@ -4,6 +4,7 @@ import Menu from "../../components/menu"
 import { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../appContext";
 import axios from "axios";
+import { ThreeDots } from "react-loader-spinner";
 
 const buttonColors = { available: { bg: "#FFFFFF", border: "#D5D5D5", fontColor: "#DBDBDB" }, selected: { bg: "#CFCFCF", border: "#CFCFCF", fontColor: "#ffffff" } };
 
@@ -104,9 +105,9 @@ export default function HabitsPage() {
                 <AddHabit>
                     <MyHabits>
                         <p>Meus hábitos</p>
-                        <button onClick={() => setAdd(!add)}>+</button>
+                        <button onClick={() => setAdd(!add)} data-test="habit-create-btn">+</button>
                     </MyHabits>
-                    <ContainerAdd add={add}>
+                    <ContainerAdd add={add} data-test="habit-create-container">
                         <ContainerInput>
                             <input
                                 required
@@ -116,18 +117,21 @@ export default function HabitsPage() {
                                 value={habitName} 
                                 onChange={e => setHabitName(e.target.value)} 
                                 disabled={loading}
-                                /*data-test="client-name"*/
+                                data-test="habit-name-input"
                             />
                             <div>
                                 {Object.values(daysObj).map((d, index) => (
-                                    <SelButton index={index} selected={selected} key={index} onClick={() => addDay(index)} disabled={loading}>{d}</SelButton>
+                                    <SelButton index={index} selected={selected} key={index} onClick={() => addDay(index)} disabled={loading} loading={loading} data-test="habit-day">{d}</SelButton>
                                 )
                                 )}
                             </div>
                         </ContainerInput>
                         <SaveButtons>
-                            <CancelButton onClick={() => setAdd(false)}>Cancelar</CancelButton>
-                            <SaveButton onClick={save} loading={loading}>Salvar</SaveButton>
+                            <CancelButton onClick={() => setAdd(false)} loading={loading} data-test="habit-create-cancel-btn">Cancelar</CancelButton>
+                            <SaveButton onClick={save} loading={loading} data-test="habit-create-save-btn">
+                                <ThreeDots color='#ffffff' visible={loading}/>
+                                {loading ? "": "Salvar"}
+                            </SaveButton>
                         </SaveButtons>
                     </ContainerAdd>
                 </AddHabit>
@@ -135,12 +139,12 @@ export default function HabitsPage() {
                     <p>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</p>
                 </NoHabits>
                 {habits.map(h => (
-                    <DisplayHabits key={h.id}>
-                        <ion-icon name="trash-outline" onClick={()=>deleteHabit(h)}></ion-icon>
-                        <p>{h.name}</p>
+                    <DisplayHabits key={h.id} data-test="habit-container">
+                        <ion-icon name="trash-outline" onClick={()=>deleteHabit(h)} data-test="habit-delete-btn"></ion-icon>
+                        <p data-test="habit-name">{h.name}</p>
                         <ContainerButtons>
                             {Object.values(daysObj).map((d, index) => (
-                                <DaysButton key={index} days={h.days} index={index}>{d}</DaysButton>
+                                <DaysButton key={index} days={h.days} index={index} data-test="habit-day">{d}</DaysButton>
                             )
                             )}
                         </ContainerButtons>

@@ -10,11 +10,11 @@ export default function Menu() {
     const progObj = appObj.progObj;
 
     return(
-        <ContainerMenu>
-            <Link to="/habitos">
+        <ContainerMenu data-test="menu">
+            <Link to="/habitos" data-test="habit-link">
                 Hábitos
             </Link>
-            <Link to="/hoje">
+            <Link to="/hoje" data-test="today-link">
                 <ContainerProgress>
                     <CircularProgressbar 
                         value={progObj.progress} 
@@ -30,7 +30,7 @@ export default function Menu() {
                     />                    
                 </ContainerProgress>
             </Link>
-            <Link to="/historico">
+            <Link to="/historico" data-test="history-link">
                 Histórico
             </Link>
         </ContainerMenu>
