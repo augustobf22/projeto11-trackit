@@ -91,7 +91,23 @@ export default function TodayPage() {
             updateProgress();
     }
 
-    updateHabits();
+    useEffect(() => {
+        const config = {
+            headers: {
+                "Authorization": `Bearer ${userObj.user.token}`
+            }
+        }
+        const request = axios.get(url,config);
+
+        request.then(r => {
+            setHabitsDay(r.data);
+        });
+        request.catch(r => {
+            alert(r.response.data.message);
+        });
+	}, []);
+
+    updateProgress();
 
     return (
         <Container>
@@ -99,7 +115,7 @@ export default function TodayPage() {
             <TodayContent>
                 <TodayInfo prog={progObj.progress}>
                     <p data-test="today">{now}</p>
-                    <h1 data-test="today-counter">{progObj.progress !== 0 ? `${progObj.progress}% dos hábitos concluídos` : "Nenhum hábito concluído ainda"}</h1>
+                    <h1 data-test="today-counter">{progObj.progress === 0 ? "Nenhum hábito concluído ainda" :`${progObj.progress}% dos hábitos concluídos` }</h1>
                 </TodayInfo>
                 {habitsDay.map(h => (
                     <DisplayToday key={h.id} h={h} loading={loading} data-test="today-habit-container">
@@ -126,8 +142,10 @@ export default function TodayPage() {
 };
 
 const Container = styled.div`
-    width: 100%;
-    height: 100%;
+    width: inherit;
+    min-width: 375px;
+    height: inherit;
+    min-height: 667px;
     background-color: #F2F2F2;
 `;
 
@@ -150,6 +168,8 @@ const TodayInfo = styled.div`
         line-height: 29px;
 
         color: #126BA5;
+
+        text-transform: capitalize;
     }
 
     h1{

@@ -18,8 +18,10 @@ export default function HistoryPage() {
 };
 
 const Container = styled.div`
-    width: 100%;
-    height: 100%;
+    width: inherit;
+    min-width: 375px;
+    height: inherit;
+    min-height: 667px;
     background-color: #F2F2F2;
 `;
 

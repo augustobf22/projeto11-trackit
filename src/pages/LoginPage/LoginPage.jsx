@@ -25,7 +25,7 @@ export default function LoginPage() {
             userObj.setUser(r.data);
             navigate("/hoje")});
         promise.catch(r => {
-            alert(r.message);
+            alert(r.response.data.message);
             setLogin({
                 email: "",
                 password: ""

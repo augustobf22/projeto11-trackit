@@ -24,7 +24,8 @@ export default function SignupPage() {
             navigate("/")});
         promise.catch(r => {
             setLoading(false);
-            alert(r.data.message);
+            console.log(r.response.data);
+            alert(r.response.data.message);
         });
         
         if(!loading) {

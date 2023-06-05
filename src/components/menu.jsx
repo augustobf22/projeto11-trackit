@@ -52,6 +52,8 @@ const ContainerMenu = styled.div`
 
     padding: 30px;
 
+    z-index: 2;
+
     a{
         font-family: 'Lexend Deca';
         font-style: normal;

@@ -49,7 +49,7 @@ export default function HabitsPage() {
             setHabitName("");
         });
         promise.catch(r => {
-            alert(r.message);
+            alert(r.response.data.message);
             setLoading(false);
         });
         
@@ -76,7 +76,7 @@ export default function HabitsPage() {
                 setHabits(nHabits);
             });
             request.catch(r => {
-                alert(r.message);
+                alert(r.response.data.message);
             });
         }
     }
@@ -93,7 +93,7 @@ export default function HabitsPage() {
 			setHabits(r.data);
 		});
         request.catch(r => {
-            alert(r.message);
+            alert(r.response.data.message);
             setLoading(false);
         });
 	}, []);
@@ -127,8 +127,8 @@ export default function HabitsPage() {
                             </div>
                         </ContainerInput>
                         <SaveButtons>
-                            <CancelButton onClick={() => setAdd(false)} loading={loading} data-test="habit-create-cancel-btn">Cancelar</CancelButton>
-                            <SaveButton onClick={save} loading={loading} data-test="habit-create-save-btn">
+                            <CancelButton onClick={() => setAdd(false)} loading={loading} disabled ={loading} data-test="habit-create-cancel-btn">Cancelar</CancelButton>
+                            <SaveButton onClick={save} loading={loading} disabled={loading} data-test="habit-create-save-btn">
                                 <ThreeDots color='#ffffff' visible={loading}/>
                                 {loading ? "": "Salvar"}
                             </SaveButton>
@@ -159,8 +159,10 @@ export default function HabitsPage() {
 }
 
 const Container = styled.div`
-    width: 100%;
-    height: 100%;
+    width: inherit;
+    min-width: 375px;
+    height: inherit;
+    min-height: 667px;
     background-color: #F2F2F2;
 `;
 

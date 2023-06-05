@@ -36,6 +36,6 @@ export default function App() {
 };
 
 const ContainerApp= styled.div`
-    height: 597px;
-    width: 375px;
+    height: 100%;
+    width: 100%;
 `;
