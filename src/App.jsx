@@ -13,9 +13,11 @@ import { AppContext } from "./appContext";
 export default function App() {
   const [progress, setProgress] = useState(0);
   const [user, setUser] = useState(0);
+  const [habitsDay, setHabitsDay] = useState([]);
   const progObj = {progress, setProgress};
   const userObj = {user, setUser};
-  const appObj = {progObj, userObj};
+  const habitsDayObj = {habitsDay, setHabitsDay};
+  const appObj = {progObj, userObj, habitsDayObj};
 
   return (
     <AppContext.Provider value={appObj}>

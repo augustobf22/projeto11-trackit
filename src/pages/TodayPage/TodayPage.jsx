@@ -16,7 +16,8 @@ export default function TodayPage() {
     const appObj = useContext(AppContext);
     const progObj = appObj.progObj;
     const userObj = appObj.userObj;
-    const [habitsDay, setHabitsDay] = useState([]);
+    const habitsDay = appObj.habitsDayObj.habitsDay;
+    const setHabitsDay = appObj.habitsDayObj.setHabitsDay;
     const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/today";
     const [loading, setLoading] = useState(false);
 

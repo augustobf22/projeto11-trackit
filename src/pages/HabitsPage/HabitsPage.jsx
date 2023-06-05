@@ -18,6 +18,19 @@ export default function HabitsPage() {
     const url = "https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits";
     const appObj = useContext(AppContext);
     const userObj = appObj.userObj;
+    const progObj = appObj.progObj;
+    const habitsDay = appObj.habitsDayObj.habitsDay;
+
+    function updateProgress(){
+        let count = 0;
+        habitsDay.forEach(hab=>hab.done?count++:"");
+
+        let den = habitsDay.length;
+        let num = count;
+
+        let n = Math.floor(100 * num / den);
+        progObj.setProgress(n);
+    }
 
     function addDay(index) {
         if (selected.includes(index)) {
@@ -47,6 +60,7 @@ export default function HabitsPage() {
             setLoading(false);
             setSelected([]);
             setHabitName("");
+            updateProgress();
         });
         promise.catch(r => {
             alert(r.response.data.message);
@@ -74,6 +88,7 @@ export default function HabitsPage() {
                 let nHabits = [...habits];
                 nHabits.splice(habits.indexOf(h), 1);
                 setHabits(nHabits);
+                updateProgress();
             });
             request.catch(r => {
                 alert(r.response.data.message);
@@ -97,6 +112,8 @@ export default function HabitsPage() {
             setLoading(false);
         });
 	}, []);
+
+    updateProgress();
 
     return (
         <Container>
